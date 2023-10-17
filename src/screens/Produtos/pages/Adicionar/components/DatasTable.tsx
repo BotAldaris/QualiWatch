@@ -10,7 +10,7 @@ interface IProps {
 }
 
 export default function DatasTable({ items, setData }: IProps) {
-  const [escolhido, setEscolhido] = useState(1);
+  const [escolhido, setEscolhido] = useState(0);
   return (
     <DataTable>
       <DataTable.Header>
@@ -25,6 +25,7 @@ export default function DatasTable({ items, setData }: IProps) {
                 status={escolhido === item.id ? "checked" : "unchecked"}
                 onPress={() => {
                   setEscolhido(item.id);
+                  console.log(`a data ''e ${item.data}`);
                   setData(item.data);
                 }}
               />

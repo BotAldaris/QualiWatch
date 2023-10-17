@@ -1,9 +1,6 @@
 import { ReactNode, createContext, useEffect, useState } from "react";
 import { getTheme, saveTheme } from "../services/Tema";
-import {
-  CombinedDarkTheme,
-  CombinedDefaultTheme,
-} from "../estilosGlobais";
+import { CombinedDarkTheme, CombinedDefaultTheme } from "../estilosGlobais";
 interface IProps {
   children: ReactNode;
 }
@@ -11,28 +8,31 @@ export interface ITemaContext {
   salvarTemaNoDispositivo(tema: string): Promise<void>;
   theme: typeof CombinedDarkTheme;
 }
-export const TemaContext = createContext({});export function TemaProvider({ children }: IProps) {
+export const TemaContext = createContext({});
+export function TemaProvider({ children }: IProps) {
   const [temaAtualbool, setTemaAtualbool] = useState(true);
+
   async function salvarTemaNoDispositivo(tema: string) {
     await saveTheme(tema);
-    setTemaAtualbool(temabool(tema));
+    setTemaAtualbool(isTemaEscuro(tema));
   }
-  function temabool(tema: string): boolean {
-    if (tema === "escuro") {
-      return true;
+
+  const isTemaEscuro = (tema: string) => (tema === "escuro" ? true : false);
+
+  const fetchTema = async () => {
+    try {
+      const resposta = await getTheme();
+      if (resposta) {
+        setTemaAtualbool(isTemaEscuro(resposta));
+      } else {
+        await salvarTemaNoDispositivo(resposta);
+      }
+    } catch (error) {
+      console.log(`Erro ao pegar o tema no dispostivo ${error}`);
     }
-    return false;
-  }
+  };
   useEffect(() => {
-    getTheme()
-      .then((resposta) => {
-        if (resposta) {
-          setTemaAtualbool(temabool(resposta));
-        } else {
-          salvarTemaNoDispositivo("escuro");
-        }
-      })
-      .catch((error) => console.log(error));
+    fetchTema();
   }, []);
   return (
     <TemaContext.Provider

@@ -10,11 +10,8 @@ interface IProps {
   atualizarDados: Function;
 }
 
-export default function ItemProduto({
-  produto,
-  navigation,
-  atualizarDados,
-}: IProps) {
+export default function ItemProduto(props: IProps) {
+  const { produto, navigation, atualizarDados } = props;
   return (
     <Card style={{ margin: 10 }}>
       <Card.Content>

@@ -7,21 +7,18 @@ interface IProps {
   titulo: string;
   destino: string;
 }
-export default function HeaderPrincipal({
-  navigation,
-  children,
-  titulo,
-  destino,
-}: IProps) {
+export default function HeaderPrincipal(props: IProps) {
+  const { children, titulo, navigation, destino } = props;
+
   return (
     <Appbar.Header>
-      {children}
       <Appbar.Content title={titulo} />
       <Appbar.Action
         icon="plus-thick"
         size={30}
         onPress={() => navigation.navigate(destino)}
       />
+      {children}
     </Appbar.Header>
   );
 }

@@ -10,6 +10,7 @@ import { addEditFactory } from "./functions/addEditFactory";
 import ICreateProduto from "../../../../interfaces/Produtos/CreateProduto";
 import IReadProduto from "../../../../interfaces/Produtos/ReadProduto";
 import DatePickerCamera from "./components/DatePickerCamera";
+import { useBase64 } from "./hooks/useBase64";
 
 interface IProps {
   route: RouteProp<any>;
@@ -17,7 +18,7 @@ interface IProps {
 }
 
 export default function Adicionar({ route, navigation }: IProps) {
-  const [nome, setNome] = useState("");
+  const { nome, setNome, setBase64 } = useBase64();
   const [lote, setLote] = useState("");
   const [validade, setValidade] = useState<Date>(new Date());
   const [id, setId] = useState<number>(0);
@@ -32,10 +33,9 @@ export default function Adicionar({ route, navigation }: IProps) {
       setValidade(new Date(data.validade));
       setLote(data.lote);
     }
-    console.log(route.params);
   }, []);
 
-  async function enviarAtualizar(funcao: string) {
+  async function enviarAtualizar() {
     const produto = {
       nome,
       validade,
@@ -57,16 +57,21 @@ export default function Adicionar({ route, navigation }: IProps) {
         }}
       >
         <View style={{ width: "95%", gap: 16 }}>
-          <TextInput
-            style={{ marginTop: 16 }}
-            placeholder="Nome do produto"
-            label="Nome do produto"
-            placeholderTextColor={theme.colors.primary}
-            autoCapitalize="none"
-            value={nome}
-            onChangeText={setNome}
-            mode="outlined"
-          />
+          <View
+            style={{ flex: 1, flexDirection: "row", alignItems: "flex-end" }}
+          >
+            <TextInput
+              style={{ marginTop: 16, width: "90%" }}
+              placeholder="Nome do produto"
+              label="Nome do produto"
+              placeholderTextColor={theme.colors.primary}
+              autoCapitalize="none"
+              value={nome}
+              onChangeText={setNome}
+              mode="outlined"
+            />
+            <DatePickerCamera setBase64={setBase64}></DatePickerCamera>
+          </View>
           <View>
             <TextInput
               placeholder="Lote"
@@ -81,19 +86,18 @@ export default function Adicionar({ route, navigation }: IProps) {
           {id != 0 ? (
             <Button
               mode="outlined"
-              onPress={async () => await enviarAtualizar("editar")}
+              onPress={async () => await enviarAtualizar()}
             >
               Editar
             </Button>
           ) : (
             <Button
               mode="outlined"
-              onPress={async () => await enviarAtualizar("adicionar")}
+              onPress={async () => await enviarAtualizar()}
             >
               Enviar
             </Button>
           )}
-          <DatePickerCamera setValidade={setValidade}></DatePickerCamera>
         </View>
       </View>
     </ScrollView>

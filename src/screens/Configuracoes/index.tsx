@@ -1,25 +1,21 @@
 import { estilos } from "./estilos";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { TemaContext, ITemaContext } from "../../contexts/TemaContext";
 import { View } from "react-native";
 import { Button, Switch, Text, TextInput } from "react-native-paper";
-import { getUrl, saveUrl } from "../../services/Url";
-interface IProps {
-  navigation: NativeStackNavigationProp<any>;
-}
-export default function Configuracao({ navigation }: IProps) {
+import { saveUrl } from "../../services/Url";
+import { useUrl } from "./hooks/useUrl";
+import { useOnOff } from "./hooks/useOnOff";
+
+export default function Configuracao() {
   const { salvarTemaNoDispositivo, theme } = useContext(
     TemaContext
   ) as ITemaContext;
-  const [url, setUrl] = useState("");
+
+  const { url, handleUrl } = useUrl();
+  const { onOff, handleOnOff } = useOnOff();
   const estilo = estilos();
-  useEffect(() => {
-    const carregarUrl = async () => {
-      setUrl(await getUrl());
-    };
-    carregarUrl();
-  }, []);
+
   async function enviar() {
     await saveUrl(url);
   }
@@ -40,11 +36,22 @@ export default function Configuracao({ navigation }: IProps) {
           value={theme.dark ? true : false}
         />
       </View>
+      <View style={estilo.inputArea}>
+        <Text style={estilo.subtitulo}>
+          Salvar: {onOff == "online" ? "Online" : "Offline"}
+        </Text>
+        <Switch
+          onValueChange={() =>
+            onOff == "online" ? handleOnOff("offline") : handleOnOff("online")
+          }
+          value={onOff == "online" ? true : false}
+        />
+      </View>
       <TextInput
-        onChangeText={setUrl}
+        onChangeText={handleUrl}
         value={url}
         placeholder="Url"
-        style={{width:"90%"}}
+        style={{ width: "90%" }}
       ></TextInput>
       <Button onPress={enviar}>Enviar</Button>
     </View>

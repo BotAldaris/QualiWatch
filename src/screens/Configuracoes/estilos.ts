@@ -6,7 +6,7 @@ export const estilos = () => {
       flex: 1,
       alignItems: "center",
       justifyContent: "center",
-      textAlign:"center"
+      textAlign: "center",
     },
     titulo: {
       fontSize: 25,
@@ -19,7 +19,6 @@ export const estilos = () => {
       marginBottom: 20,
     },
     inputArea: {
-      height: 200,
       width: "100%",
       alignItems: "center",
       justifyContent: "center",

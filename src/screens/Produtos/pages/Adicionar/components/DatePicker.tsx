@@ -3,7 +3,10 @@ import DateTimePicker, {
 } from "@react-native-community/datetimepicker";
 import { useState } from "react";
 import { Platform, Pressable, View } from "react-native";
-import { Button, IconButton, TextInput } from "react-native-paper";
+import { Button, TextInput } from "react-native-paper";
+import DatePickerCamera from "./DatePickerCamera";
+import EscolherData from "./EscolherData";
+import { useDatePicker } from "./hooks/useDatePicker";
 
 interface IProps {
   validade: Date;
@@ -11,6 +14,7 @@ interface IProps {
 }
 export default function DatePicker({ validade, setValidade }: IProps) {
   const [show, setShow] = useState(false);
+  const { setBase64, setVisivel, visivel, esperar, items } = useDatePicker();
   const onChange = (
     event: DateTimePickerEvent,
     selectedDate: Date | undefined
@@ -47,15 +51,25 @@ export default function DatePicker({ validade, setValidade }: IProps) {
         </View>
       )}
       {!show && (
-        <Pressable onPress={toggleDatePicker}>
-          <TextInput
-            placeholder="Escolha a data"
-            value={validade.toLocaleString()}
-            label="Validade"
-            mode="outlined"
-            editable={false}
+        <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
+          <Pressable onPress={toggleDatePicker} style={{ width: "90%" }}>
+            <TextInput
+              placeholder="Escolha a data"
+              value={validade.toLocaleString()}
+              label="Validade"
+              mode="outlined"
+              editable={false}
+            />
+          </Pressable>
+          <DatePickerCamera setBase64={setBase64} />
+          <EscolherData
+            setValidade={setValidade}
+            items={items}
+            visivel={visivel}
+            setVisivel={setVisivel}
+            esperar={esperar}
           />
-        </Pressable>
+        </View>
       )}
     </View>
   );

@@ -8,7 +8,7 @@ interface IProps {
 
 export default async function editarProduto({ produto, id }: IProps) {
   try {
-    putProduto(produto, id);
+    await putProduto(produto, id);
     return true;
   } catch (error) {
     alert(`Erro ao ler produtos: ${error}`);
