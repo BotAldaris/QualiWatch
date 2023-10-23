@@ -15,11 +15,12 @@ export default function NomeInput({ nome,valor, setValor }: IProps) {
     <View>
         <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
             <TextInput
-            style={{ width: "90%" }}
+              style={{ width: "90%" }}
               placeholder={`Escolha o ${nome}`}
               value={valor}
               label={`${nome}`}
               mode="outlined"
+              onChangeText={setValor}
             />
             <BotaoCamera setBase64={setBase64} />
             <EscolherData
