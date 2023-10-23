@@ -4,9 +4,9 @@ import DateTimePicker, {
 import { useState } from "react";
 import { Platform, Pressable, View } from "react-native";
 import { Button, TextInput } from "react-native-paper";
-import DatePickerCamera from "./DatePickerCamera";
 import EscolherData from "./EscolherData";
 import { useDatePicker } from "./hooks/useDatePicker";
+import BotaoCamera from "./BotaoCamera";
 
 interface IProps {
   validade: Date;
@@ -14,7 +14,7 @@ interface IProps {
 }
 export default function DatePicker({ validade, setValidade }: IProps) {
   const [show, setShow] = useState(false);
-  const { setBase64, setVisivel, visivel, esperar, items } = useDatePicker();
+  const { setBase64, setVisivel, visivel, esperar, items } = useDatePicker(true);
   const onChange = (
     event: DateTimePickerEvent,
     selectedDate: Date | undefined
@@ -61,13 +61,15 @@ export default function DatePicker({ validade, setValidade }: IProps) {
               editable={false}
             />
           </Pressable>
-          <DatePickerCamera setBase64={setBase64} />
+          <BotaoCamera setBase64={setBase64} />
           <EscolherData
-            setValidade={setValidade}
+            setValor={setValidade}
             items={items}
             visivel={visivel}
             setVisivel={setVisivel}
             esperar={esperar}
+            nome="a Data"
+            pegarData={true}
           />
         </View>
       )}

@@ -11,25 +11,34 @@ interface IProps {
   visivel: boolean;
   setVisivel: React.Dispatch<React.SetStateAction<boolean>>;
   esperar: boolean;
-  setValidade: React.Dispatch<React.SetStateAction<Date>>;
+  setValor: React.Dispatch<React.SetStateAction<any>>;
+  nome:string;
+  pegarData:boolean;
 }
 export default function EscolherData({
   items,
   visivel,
   setVisivel,
   esperar,
-  setValidade,
+  setValor,
+  nome,
+  pegarData
 }: IProps) {
   const [data, setData] = useState("");
   const esconderDialogo = () => setVisivel(false);
   const confirmar = () => {
-    setValidade(stringParaData(data));
+    if(pegarData){
+      setValor(stringParaData(data));
+    }
+    else{
+      setValor(data)
+    }
     esconderDialogo();
   };
   return (
     <Portal>
       <Dialog visible={visivel} onDismiss={esconderDialogo}>
-        <Dialog.Title>Escolha a data</Dialog.Title>
+        <Dialog.Title>Escolha {nome}</Dialog.Title>
         <Dialog.Content>
           {esperar ? (
             <ActivityIndicator animating={true} />

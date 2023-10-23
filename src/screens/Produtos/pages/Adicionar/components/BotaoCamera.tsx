@@ -15,7 +15,7 @@ const getCameraPermission = async () => {
   }
 };
 
-export default function Camera(props: IProps) {
+export default function BotaoCamera(props: IProps) {
   const { setBase64 } = props;
 
   const pickImage = async () => {

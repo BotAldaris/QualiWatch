@@ -9,8 +9,9 @@ import DatePicker from "./components/DatePicker";
 import { addEditFactory } from "./functions/addEditFactory";
 import ICreateProduto from "../../../../interfaces/Produtos/CreateProduto";
 import IReadProduto from "../../../../interfaces/Produtos/ReadProduto";
-import DatePickerCamera from "./components/DatePickerCamera";
+import DatePickerCamera from "./components/BotaoCamera";
 import { useBase64 } from "./hooks/useBase64";
+import NomeInput from "./components/ValueInputWithOcr";
 
 interface IProps {
   route: RouteProp<any>;
@@ -57,30 +58,8 @@ export default function Adicionar({ route, navigation }: IProps) {
         }}
       >
         <View style={{ width: "95%", gap: 16 }}>
-          <View
-            style={{ flex: 1, flexDirection: "row", alignItems: "flex-end" }}
-          >
-            <TextInput
-              style={{ marginTop: 16, width: "90%" }}
-              placeholder="Nome do produto"
-              label="Nome do produto"
-              placeholderTextColor={theme.colors.primary}
-              autoCapitalize="none"
-              value={nome}
-              onChangeText={setNome}
-              mode="outlined"
-            />
-            <DatePickerCamera setBase64={setBase64}></DatePickerCamera>
-          </View>
-          <View>
-            <TextInput
-              placeholder="Lote"
-              label="Lote"
-              value={lote}
-              onChangeText={setLote}
-              mode="outlined"
-            />
-          </View>
+         <NomeInput valor={nome} setValor={setNome} nome="Nome"/>
+         <NomeInput valor={lote} setValor={setLote} nome="Lote"/>
           <DatePicker validade={validade} setValidade={setValidade} />
           <View></View>
           {id != 0 ? (
