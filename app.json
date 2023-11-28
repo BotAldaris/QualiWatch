@@ -33,7 +33,7 @@
       "permissions": [
         "android.permission.RECORD_AUDIO"
       ],
-      "package": "com.empresajunior.QualiWatch"
+      "package": "com.aldaris.QualiWatch"
     },
     "web": {
       "favicon": "./assets/favicon.png"

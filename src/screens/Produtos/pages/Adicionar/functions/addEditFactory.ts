@@ -4,7 +4,7 @@ import editarProduto from "./edit";
 import verificarTudo from "./verificarTudo";
 
 interface IProps {
-  id: number;
+  id: string;
   produto: ICreateProduto;
 }
 
@@ -14,7 +14,7 @@ export async function addEditFactory({
 }: IProps): Promise<boolean> {
   try {
     if (verificarTudo({ produto })) {
-      if (id == 0) {
+      if (id == "") {
         await adicionarProduto({ produto });
       } else {
         await editarProduto({ produto, id });

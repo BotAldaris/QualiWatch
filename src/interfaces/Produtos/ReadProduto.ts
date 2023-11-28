@@ -1,5 +1,5 @@
 export default interface IReadProduto {
-  id: number;
+  id: string;
   nome: string;
   lote: string;
   validade: Date;

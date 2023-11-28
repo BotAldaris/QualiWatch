@@ -1,6 +1,6 @@
 import { deleteProduto } from "../../../services/Produto";
 
-export default async function remover(id: number, atualizarDados: Function) {
+export default async function remover(id: string, atualizarDados: Function) {
   try {
     await deleteProduto(id);
     await atualizarDados();

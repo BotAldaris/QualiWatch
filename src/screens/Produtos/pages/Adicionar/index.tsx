@@ -22,7 +22,7 @@ export default function Adicionar({ route, navigation }: IProps) {
   const { nome, setNome, setBase64 } = useBase64();
   const [lote, setLote] = useState("");
   const [validade, setValidade] = useState<Date>(new Date());
-  const [id, setId] = useState<number>(0);
+  const [id, setId] = useState<string>("");
   const { theme } = useContext(TemaContext) as ITemaContext;
   const data = route.params?.produto as IReadProduto;
   const editar = data ? true : false;
@@ -58,11 +58,11 @@ export default function Adicionar({ route, navigation }: IProps) {
         }}
       >
         <View style={{ width: "95%", gap: 16 }}>
-         <NomeInput valor={nome} setValor={setNome} nome="Nome"/>
-         <NomeInput valor={lote} setValor={setLote} nome="Lote"/>
+          <NomeInput valor={nome} setValor={setNome} nome="Nome" />
+          <NomeInput valor={lote} setValor={setLote} nome="Lote" />
           <DatePicker validade={validade} setValidade={setValidade} />
           <View></View>
-          {id != 0 ? (
+          {id ? (
             <Button
               mode="outlined"
               onPress={async () => await enviarAtualizar()}

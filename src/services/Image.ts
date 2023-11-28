@@ -6,19 +6,22 @@ export async function getTextFromImage(
   validade: boolean = true
 ): Promise<any> {
   const url = await getUrl();
+  const indicador = "Image";
   if (!url) {
     throw new Error("Insira a url");
   }
   try {
     if (validade) {
       return (
-        await axios.post(`${url}TextExtractor/validade`, {
-          base64_image: base64,
+        await axios.post(`${url}/${indicador}/validade`, {
+          base64: base64,
         })
       ).data;
     } else {
       return (
-        await axios.post(`${url}TextExtractor/texto`, { base64_image: base64 })
+        await axios.post(`${url}${indicador}/texto`, {
+          base64: base64,
+        })
       ).data;
     }
   } catch (e) {

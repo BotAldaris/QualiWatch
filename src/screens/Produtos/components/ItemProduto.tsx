@@ -13,7 +13,7 @@ interface IProps {
 export default function ItemProduto(props: IProps) {
   const { produto, navigation, atualizarDados } = props;
   return (
-    <Card style={{ margin: 10 }}>
+    <Card style={{ margin: 10, flexBasis: 0, flexGrow: 1 }}>
       <Card.Content>
         <View>
           <Title style={{ fontSize: 18 }}>{produto.nome}</Title>

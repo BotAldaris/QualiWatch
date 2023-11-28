@@ -1,27 +1,43 @@
-export default function stringParaData(data: string): Date {
-  const tamanho: number = data.length;
-  const parts = data.split(/[./\s-]/);
-  if (tamanho === 10) {
-    // dd/mm/yyyy
-    const dia = Number.parseInt(parts[0]);
-    const mes = Number.parseInt(parts[1]) - 1;
-    const ano = Number.parseInt(parts[2]);
-    return new Date(ano, mes, dia);
-  } else if (tamanho === 8) {
-    // dd/mm/yy
-    const dia = Number.parseInt(parts[0]);
-    const mes = Number.parseInt(parts[1]) - 1;
-    const ano = Number.parseInt("20" + parts[2]);
-    return new Date(ano, mes, dia);
-  } else if (tamanho === 7) {
-    // mm/yyyy
-    const mes = Number.parseInt(parts[0]) - 1;
-    const ano = Number.parseInt(parts[1]);
-    return new Date(ano, mes);
+export default function stringParaData(dataString: string) {
+  let ano = 2000;
+  let mes = 1;
+  let dia = 1;
+  const apenasNumeros = dataString.replace(/\D/g, "");
+
+  // Analisar a string com base no comprimento
+  if (apenasNumeros.length === 8) {
+    ano = parseInt(apenasNumeros.substring(4, 8), 10);
+    mes = parseInt(apenasNumeros.substring(2, 4), 10);
+    dia = parseInt(apenasNumeros.substring(0, 2), 10);
+  } else if (
+    apenasNumeros.length === 6 &&
+    apenasNumeros.substring(2, 6) < "2000"
+  ) {
+    ano = 2000 + parseInt(apenasNumeros.substring(4, 6), 10);
+    mes = parseInt(apenasNumeros.substring(2, 4), 10);
+    dia = parseInt(apenasNumeros.substring(0, 2), 10);
+  } else if (apenasNumeros.length === 4) {
+    ano = 2000 + parseInt(apenasNumeros.substring(2, 4), 10);
+    mes = parseInt(apenasNumeros.substring(0, 2), 10);
+  } else if (apenasNumeros.length === 6) {
+    ano = parseInt(apenasNumeros.substring(2, 6), 10);
+    mes = parseInt(apenasNumeros.substring(0, 2), 10);
   } else {
-    // mm/yy
-    const mes = Number.parseInt(parts[0]) - 1;
-    const ano = Number.parseInt("20" + parts[1]);
-    return new Date(ano, mes);
+    // Retornar null para formatos inválidos
+    return null;
   }
+
+  // Criar objeto de data
+  const data = new Date(ano, mes - 1, dia);
+
+  // Verificar se a data é válida
+  if (
+    isNaN(data.getFullYear()) ||
+    isNaN(data.getMonth()) ||
+    isNaN(data.getDate())
+  ) {
+    return null;
+  }
+
+  return data;
 }

@@ -7,6 +7,7 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Configuracao from "../screens/Configuracoes";
 import ProdutosRotas from "./ProdutosRotas";
 import { StatusBar } from "react-native";
+import Alerta from "../screens/Validade";
 const Tab = createBottomTabNavigator();
 interface IIcon {
   nome: string;
@@ -15,8 +16,10 @@ interface IIcon {
 function Icon({ nome, color }: IIcon) {
   if (nome === "Produtos") {
     return <MaterialCommunityIcons name="monitor" size={25} color={color} />;
-  } else {
+  } else if (nome == "Configuração") {
     return <MaterialCommunityIcons name="cog" size={25} color={color} />;
+  } else {
+    return <MaterialCommunityIcons name="bell" size={25} color={color} />;
   }
 }
 export default function AppRotas() {
@@ -36,7 +39,8 @@ export default function AppRotas() {
           })}
         >
           <Tab.Screen name="Produtos" component={ProdutosRotas} />
-          <Tab.Screen name="Configuracao" component={Configuracao} />
+          <Tab.Screen name="Configuração" component={Configuracao} />
+          <Tab.Screen name="Alerta" component={Alerta} />
         </Tab.Navigator>
       </NavigationContainer>
     </PaperProvider>

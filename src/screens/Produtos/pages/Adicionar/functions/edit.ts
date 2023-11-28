@@ -3,7 +3,7 @@ import { putProduto } from "../../../../../services/Produto";
 
 interface IProps {
   produto: ICreateProduto;
-  id: number;
+  id: string;
 }
 
 export default async function editarProduto({ produto, id }: IProps) {

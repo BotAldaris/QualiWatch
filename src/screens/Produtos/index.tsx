@@ -1,4 +1,4 @@
-import { FlatList, View } from "react-native";
+import { Dimensions, FlatList, View } from "react-native";
 import HeaderPrincipal from "../../components/Header";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import ItemProduto from "./components/ItemProduto";
@@ -6,6 +6,7 @@ import { Searchbar } from "react-native-paper";
 import { useProdutos } from "./hooks/useProdutos";
 import { useProdutoFilter } from "./hooks/useProdutoFillter";
 import SyncIcon from "./components/SyncIcon";
+import numeroDeColunas from "./functions/width";
 
 interface IProps {
   navigation: NativeStackNavigationProp<any>;
@@ -24,15 +25,14 @@ export default function Produtos({ navigation }: IProps) {
       />
 
       <FlatList
+        numColumns={numeroDeColunas()}
         data={produtos}
         renderItem={(produto) => (
-          <View>
-            <ItemProduto
-              produto={produto.item}
-              navigation={navigation}
-              atualizarDados={fetchDados}
-            />
-          </View>
+          <ItemProduto
+            produto={produto.item}
+            navigation={navigation}
+            atualizarDados={fetchDados}
+          />
         )}
         keyExtractor={(produto) => produto.id.toString()}
         ListHeaderComponent={

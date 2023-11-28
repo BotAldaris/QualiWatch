@@ -5,6 +5,7 @@ import ICreateProduto from "../interfaces/Produtos/CreateProduto";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getEstado } from "./Estado";
 import NetInfo from "@react-native-community/netinfo";
+import IReadProdutoApi from "../interfaces/Produtos/ReadProdutoApi";
 const dateTimeReviver = function (key: any, value: any) {
   var a;
   if (typeof value === "string") {
@@ -14,6 +15,15 @@ const dateTimeReviver = function (key: any, value: any) {
     }
   }
   return value;
+};
+
+const baseUrl = async () => {
+  const base = await getUrl();
+  if (!base) {
+    throw new Error("Insira a url");
+  }
+  const result = `${base}/Produtos`;
+  return result;
 };
 
 export async function ReadProduto(): Promise<IReadProduto[]> {
@@ -34,11 +44,8 @@ export async function ReadProduto(): Promise<IReadProduto[]> {
 }
 const ReadProdutoApi = async () => {
   try {
-    const url = await getUrl();
-    if (!url) {
-      throw new Error("Insira a url");
-    }
-    const response = await axios.get(`${url}Produto`);
+    const url = await baseUrl();
+    const response = await axios.get(`${url}`);
     return response.data as IReadProduto[];
   } catch (e) {
     throw new Error(`Erro ao pegar os produtos no banco de dados ${e}`);
@@ -83,11 +90,8 @@ export async function saveProduto(produto: ICreateProduto) {
 
 const saveProdutoApi = async (produto: ICreateProduto) => {
   try {
-    const url = await getUrl();
-    if (!url) {
-      throw new Error("Insira a url");
-    }
-    await axios.post(`${url}Produto`, produto);
+    const url = await baseUrl();
+    await axios.post(`${url}`, produto);
   } catch (e) {
     throw e;
   }
@@ -99,14 +103,14 @@ const saveProdutoAsyncStorage = async (produto: ICreateProduto) => {
     if (dados && dados.length >= 1) {
       const novoProduto = {
         ...produto,
-        id: dados[dados.length - 1].id + 1,
+        id: `${Number.parseInt(dados[dados.length - 1].id) + 1}`,
       };
       dados.push(novoProduto);
     } else {
       dados = [] as IReadProduto[];
       const novoProduto = {
         ...produto,
-        id: 1,
+        id: "1",
       };
       dados.push(novoProduto);
     }
@@ -115,7 +119,7 @@ const saveProdutoAsyncStorage = async (produto: ICreateProduto) => {
     throw new Error(`Erro ao adicionar o produto offline, erro: ${e}}`);
   }
 };
-export async function putProduto(produto: ICreateProduto, id: number) {
+export async function putProduto(produto: ICreateProduto, id: string) {
   try {
     const estado = await getEstado();
     if (estado == "online") {
@@ -128,19 +132,16 @@ export async function putProduto(produto: ICreateProduto, id: number) {
   }
 }
 
-const putProdutoApi = async (produto: ICreateProduto, id: number) => {
+const putProdutoApi = async (produto: ICreateProduto, id: string) => {
   try {
-    const url = await getUrl();
-    if (!url) {
-      throw new Error("Insira a url");
-    }
-    await axios.put(`${url}Produto/${id}`, produto);
+    const url = await baseUrl();
+    await axios.put(`${url}/${id}`, produto);
   } catch (e) {
     throw new Error(`Erro ao editar o produto online, erro ${e}}`);
   }
 };
 
-const putProdutoAyncStorage = async (produto: ICreateProduto, id: number) => {
+const putProdutoAyncStorage = async (produto: ICreateProduto, id: string) => {
   try {
     let dados = await ReadProdutoAsyncStorage();
     if (dados) {
@@ -161,7 +162,7 @@ const putProdutoAyncStorage = async (produto: ICreateProduto, id: number) => {
   }
 };
 
-export async function deleteProduto(id: number) {
+export async function deleteProduto(id: string) {
   try {
     const estado = await getEstado();
     if (estado == "online") {
@@ -174,19 +175,16 @@ export async function deleteProduto(id: number) {
   }
 }
 
-const deleteProdutoApi = async (id: number) => {
+const deleteProdutoApi = async (id: string) => {
   try {
-    const url = await getUrl();
-    if (!url) {
-      throw new Error("Insira a url");
-    }
-    await axios.delete(`${url}Produto/${id}`);
+    const url = await baseUrl();
+    await axios.delete(`${url}/${id}`);
   } catch (e) {
     throw e;
   }
 };
 
-const deleteProdutoAyncStorage = async (id: number) => {
+const deleteProdutoAyncStorage = async (id: string) => {
   try {
     let dados = await ReadProdutoAsyncStorage();
     if (dados) {
@@ -224,4 +222,65 @@ export async function SincronizarProdutoAyncStorageParaApi() {
       );
     }
   }
+}
+
+export async function atualizarListaProdutosPertodeVencer() {
+  try {
+    const body = await criarBodyComValidade();
+    const url = await baseUrl();
+    const resposta = await axios.post(`${url}/validade`, body);
+    const produtosSemDataFormatada = resposta.data as IReadProdutoApi[];
+    const produtos = await getListaProdutosPertoDeVencerApi();
+    const result = [...produtosSemDataFormatada, ...produtos];
+    await AsyncStorage.setItem("validades", JSON.stringify(result));
+  } catch (e) {
+    alert("Erro ao atualizar a pagina alerta, erro" + e);
+  }
+}
+
+export async function getListaProdutosPertoDeVencerApi(): Promise<
+  IReadProdutoApi[]
+> {
+  try {
+    const produtosString = await AsyncStorage.getItem("validades");
+    if (produtosString) {
+      const produtos = JSON.parse(produtosString) as IReadProdutoApi[];
+      return produtos;
+    }
+    return [] as IReadProdutoApi[];
+  } catch (error) {
+    throw new Error(`Erro ao Pegar os Alertas no Async Storage: ${error}`);
+  }
+}
+
+function converterApiparaProduto(
+  produtosApi: IReadProdutoApi[]
+): IReadProduto[] {
+  const result = [] as IReadProduto[];
+  produtosApi.forEach((produto) => {
+    const novoProduto = {
+      ...produto,
+      validade: new Date(produto.validade),
+    };
+    result.push(novoProduto);
+  });
+  return result;
+}
+
+export async function getListaProdutosPertoDeVencer(): Promise<IReadProduto[]> {
+  const produtosSemDataFormatada = await getListaProdutosPertoDeVencerApi();
+  const result = converterApiparaProduto(produtosSemDataFormatada);
+  return result;
+}
+
+async function criarBodyComValidade(): Promise<Body> {
+  const validade = await AsyncStorage.getItem("ultimaAtulizacao");
+  await AsyncStorage.setItem("ultimaAtulizacao", new Date().toISOString());
+  if (validade) {
+    return { ultimaAtulizacao: validade };
+  }
+  return {} as Body;
+}
+interface Body {
+  ultimaAtulizacao: string;
 }
