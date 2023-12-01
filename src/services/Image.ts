@@ -19,7 +19,7 @@ export async function getTextFromImage(
       ).data;
     } else {
       return (
-        await axios.post(`${url}${indicador}/texto`, {
+        await axios.post(`${url}/${indicador}/texto`, {
           base64: base64,
         })
       ).data;

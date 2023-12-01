@@ -228,11 +228,13 @@ export async function atualizarListaProdutosPertodeVencer() {
   try {
     const body = await criarBodyComValidade();
     const url = await baseUrl();
+    const data = new Date().toISOString();
     const resposta = await axios.post(`${url}/validade`, body);
     const produtosSemDataFormatada = resposta.data as IReadProdutoApi[];
     const produtos = await getListaProdutosPertoDeVencerApi();
     const result = [...produtosSemDataFormatada, ...produtos];
     await AsyncStorage.setItem("validades", JSON.stringify(result));
+    await AsyncStorage.setItem("ultimaAtulizacao", data);
   } catch (e) {
     alert("Erro ao atualizar a pagina alerta, erro" + e);
   }
@@ -275,7 +277,6 @@ export async function getListaProdutosPertoDeVencer(): Promise<IReadProduto[]> {
 
 async function criarBodyComValidade(): Promise<Body> {
   const validade = await AsyncStorage.getItem("ultimaAtulizacao");
-  await AsyncStorage.setItem("ultimaAtulizacao", new Date().toISOString());
   if (validade) {
     return { ultimaAtulizacao: validade };
   }
