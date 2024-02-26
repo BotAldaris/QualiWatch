@@ -23,14 +23,11 @@ export default function stringParaData(dataString: string) {
     ano = parseInt(apenasNumeros.substring(2, 6), 10);
     mes = parseInt(apenasNumeros.substring(0, 2), 10);
   } else {
-    // Retornar null para formatos inválidos
     return null;
   }
-
-  // Criar objeto de data
   const data = new Date(ano, mes - 1, dia);
 
-  // Verificar se a data é válida
+  // Verifica se a data é válida
   if (
     isNaN(data.getFullYear()) ||
     isNaN(data.getMonth()) ||
