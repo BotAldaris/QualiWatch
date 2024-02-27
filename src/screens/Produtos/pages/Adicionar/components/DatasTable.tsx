@@ -1,11 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { View } from "react-native";
 import { DataTable, RadioButton, Text } from "react-native-paper";
+import ImageResponse from "../../../../../interfaces/Images/ImageResponse";
 interface IProps {
-  items: {
-    data: string;
-    id: number;
-  }[];
+  items: ImageResponse[];
   setData: React.Dispatch<React.SetStateAction<string>>;
 }
 

@@ -4,7 +4,7 @@ import { atualizarListaProdutosPertodeVencer } from "../../../services/Produto";
 import SyncIcon from "../../Produtos/components/SyncIcon";
 
 interface IProps {
-  recarregar: Function;
+  recarregar: () => Promise<void>;
 }
 
 const Header = (props: IProps) => {

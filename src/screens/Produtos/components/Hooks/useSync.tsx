@@ -2,7 +2,7 @@ import { useState } from "react";
 import { SincronizarProdutoAyncStorageParaApi } from "../../../../services/Produto";
 import { getEstado } from "../../../../services/Estado";
 
-export const useSync = (fetchDados: Function) => {
+export const useSync = (fetchDados: () => Promise<void>) => {
   const [girando, setGirando] = useState(false);
 
   const sincronizar = async () => {

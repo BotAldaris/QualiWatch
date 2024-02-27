@@ -21,7 +21,7 @@ export default function BotaoCamera(props: IProps) {
   const pickImage = async () => {
     await getCameraPermission();
 
-    let result = await ImagePicker.launchCameraAsync({
+    const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
       quality: 1,

@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { View, Animated, Easing, Pressable } from "react-native";
-import { Badge, Icon } from "react-native-paper";
+import { Icon } from "react-native-paper";
 import { useSync } from "./Hooks/useSync";
 
 interface IProps {
-  fetchDados: Function;
+  fetchDados: () => Promise<void>;
 }
 
 function SyncIcon({ fetchDados }: IProps) {

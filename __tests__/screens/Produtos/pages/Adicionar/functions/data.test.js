@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import stringParaData from "../../../../../../src/screens/Produtos/pages/Adicionar/functions/data";
 
 test("data com o separador /", () => {

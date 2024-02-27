@@ -1,30 +1,29 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
-import { TextInput, Button } from "react-native-paper";
-import { TemaContext, ITemaContext } from "../../../../contexts/TemaContext";
-import { RouteProp } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { Button } from "react-native-paper";
 import Header from "./components/Header";
 import DatePicker from "./components/DatePicker";
 import { addEditFactory } from "./functions/addEditFactory";
 import ICreateProduto from "../../../../interfaces/Produtos/CreateProduto";
 import IReadProduto from "../../../../interfaces/Produtos/ReadProduto";
-import DatePickerCamera from "./components/BotaoCamera";
-import { useBase64 } from "./hooks/useBase64";
 import NomeInput from "./components/ValueInputWithOcr";
+import {
+  AdicionarProdutoRouteProp,
+  ProdutosStackNavigatorProp,
+} from "../../../../routes/Types/ProdutosStackNavigator";
+import { useRoute } from "@react-navigation/native";
 
 interface IProps {
-  route: RouteProp<any>;
-  navigation: NativeStackNavigationProp<any>;
+  navigation: ProdutosStackNavigatorProp;
 }
 
-export default function Adicionar({ route, navigation }: IProps) {
-  const { nome, setNome, setBase64 } = useBase64();
+export default function Adicionar({ navigation }: IProps) {
+  const route = useRoute<AdicionarProdutoRouteProp>();
+  const [nome, setNome] = useState("");
   const [lote, setLote] = useState("");
   const [validade, setValidade] = useState<Date>(new Date());
   const [id, setId] = useState<string>("");
-  const { theme } = useContext(TemaContext) as ITemaContext;
-  const data = route.params?.produto as IReadProduto;
+  const data = route.params.produto as IReadProduto;
   const editar = data ? true : false;
 
   useEffect(() => {

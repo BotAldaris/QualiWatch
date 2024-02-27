@@ -6,7 +6,7 @@ import { removerDosAlertas } from "../../../services/Validade";
 
 interface IProps {
   produtos: IReadProduto[];
-  recarregar: Function;
+  recarregar: () => Promise<void>;
 }
 
 const Tabela = (props: IProps) => {

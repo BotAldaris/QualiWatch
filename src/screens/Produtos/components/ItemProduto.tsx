@@ -1,13 +1,13 @@
 import { View } from "react-native";
 import { Card, IconButton, Text, Title } from "react-native-paper";
 import IReadProduto from "../../../interfaces/Produtos/ReadProduto";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import remover from "../functions/removerProduto";
 import ValidadeIcon from "./ValidadeIcon";
+import { ProdutosStackNavigatorProp } from "../../../routes/Types/ProdutosStackNavigator";
 interface IProps {
   produto: IReadProduto;
-  navigation: NativeStackNavigationProp<any>;
-  atualizarDados: Function;
+  navigation: ProdutosStackNavigatorProp;
+  atualizarDados: () => Promise<void>;
 }
 
 export default function ItemProduto(props: IProps) {

@@ -1,7 +1,7 @@
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Appbar } from "react-native-paper";
+import { ProdutosStackNavigatorProp } from "../../../../../routes/Types/ProdutosStackNavigator";
 interface IProps {
-  navigation: NativeStackNavigationProp<any>;
+  navigation: ProdutosStackNavigatorProp;
   editar: boolean;
 }
 export default function Header({ navigation, editar }: IProps) {

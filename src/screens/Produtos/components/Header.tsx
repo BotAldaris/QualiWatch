@@ -1,14 +1,13 @@
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ReactNode } from "react";
 import { Appbar } from "react-native-paper";
+import { ProdutosStackNavigatorProp } from "../../../routes/Types/ProdutosStackNavigator";
 interface IProps {
-  navigation: NativeStackNavigationProp<any>;
+  navigation: ProdutosStackNavigatorProp;
   children?: ReactNode;
   titulo: string;
-  destino: string;
 }
-export default function HeaderPrincipal(props: IProps) {
-  const { children, titulo, navigation, destino } = props;
+export default function Header(props: IProps) {
+  const { children, titulo, navigation } = props;
 
   return (
     <Appbar.Header>
@@ -16,7 +15,9 @@ export default function HeaderPrincipal(props: IProps) {
       <Appbar.Action
         icon="plus-thick"
         size={30}
-        onPress={() => navigation.navigate(destino)}
+        onPress={() =>
+          navigation.navigate("AdicionarProduto", { produto: null })
+        }
       />
       {children}
     </Appbar.Header>

@@ -1,15 +1,15 @@
-import { Dimensions, FlatList, View } from "react-native";
-import HeaderPrincipal from "../../components/Header";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { FlatList, View } from "react-native";
 import ItemProduto from "./components/ItemProduto";
 import { Searchbar } from "react-native-paper";
 import { useProdutos } from "./hooks/useProdutos";
 import { useProdutoFilter } from "./hooks/useProdutoFillter";
 import SyncIcon from "./components/SyncIcon";
 import numeroDeColunas from "./functions/width";
+import { ProdutosStackNavigatorProp } from "../../routes/Types/ProdutosStackNavigator";
+import Header from "./components/Header";
 
 interface IProps {
-  navigation: NativeStackNavigationProp<any>;
+  navigation: ProdutosStackNavigatorProp;
 }
 
 export default function Produtos({ navigation }: IProps) {
@@ -17,12 +17,9 @@ export default function Produtos({ navigation }: IProps) {
   const { produtos, fetchDados } = useProdutos(searchQuery);
   return (
     <View style={{ flex: 1 }}>
-      <HeaderPrincipal
-        navigation={navigation}
-        titulo="Produtos"
-        destino="AdicionarProduto"
-        children={<SyncIcon fetchDados={fetchDados} />}
-      />
+      <Header navigation={navigation} titulo="Produtos">
+        <SyncIcon fetchDados={fetchDados} />
+      </Header>
 
       <FlatList
         numColumns={numeroDeColunas()}

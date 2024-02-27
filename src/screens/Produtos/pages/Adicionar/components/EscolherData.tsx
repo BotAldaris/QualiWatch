@@ -11,9 +11,10 @@ interface IProps {
   visivel: boolean;
   setVisivel: React.Dispatch<React.SetStateAction<boolean>>;
   esperar: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setValor: React.Dispatch<React.SetStateAction<any>>;
-  nome:string;
-  pegarData:boolean;
+  nome: string;
+  pegarData: boolean;
 }
 export default function EscolherData({
   items,
@@ -22,16 +23,18 @@ export default function EscolherData({
   esperar,
   setValor,
   nome,
-  pegarData
+  pegarData,
 }: IProps) {
   const [data, setData] = useState("");
   const esconderDialogo = () => setVisivel(false);
   const confirmar = () => {
-    if(pegarData){
-      setValor(stringParaData(data));
-    }
-    else{
-      setValor(data)
+    if (pegarData) {
+      const dataFormatada = stringParaData(data);
+      if (dataFormatada) {
+        setValor(dataFormatada);
+      }
+    } else {
+      setValor(data);
     }
     esconderDialogo();
   };

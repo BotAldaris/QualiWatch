@@ -6,8 +6,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getEstado } from "./Estado";
 import NetInfo from "@react-native-community/netinfo";
 import IReadProdutoApi from "../interfaces/Produtos/ReadProdutoApi";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const dateTimeReviver = function (key: any, value: any) {
-  var a;
+  let a;
   if (typeof value === "string") {
     a = /\/Date\((\d*)\)\//.exec(value);
     if (a) {
@@ -27,19 +29,15 @@ const baseUrl = async () => {
 };
 
 export async function ReadProduto(): Promise<IReadProduto[]> {
-  try {
-    const estado = await getEstado();
-    if (estado == "online") {
-      return await ReadProdutoApi();
-    } else {
-      const resultado = await ReadProdutoAsyncStorage();
-      if (resultado) {
-        return resultado;
-      }
-      return [] as IReadProduto[];
+  const estado = await getEstado();
+  if (estado == "online") {
+    return await ReadProdutoApi();
+  } else {
+    const resultado = await ReadProdutoAsyncStorage();
+    if (resultado) {
+      return resultado;
     }
-  } catch (e) {
-    throw e;
+    return [] as IReadProduto[];
   }
 }
 const ReadProdutoApi = async () => {
@@ -76,15 +74,11 @@ const ReadProdutoAsyncStorage = async () => {
 };
 
 export async function saveProduto(produto: ICreateProduto) {
-  try {
-    const estado = await getEstado();
-    if (estado == "online") {
-      return await saveProdutoApi(produto);
-    } else {
-      return await saveProdutoAsyncStorage(produto);
-    }
-  } catch (e) {
-    throw e;
+  const estado = await getEstado();
+  if (estado == "online") {
+    return await saveProdutoApi(produto);
+  } else {
+    return await saveProdutoAsyncStorage(produto);
   }
 }
 
@@ -93,7 +87,7 @@ const saveProdutoApi = async (produto: ICreateProduto) => {
     const url = await baseUrl();
     await axios.post(`${url}`, produto);
   } catch (e) {
-    throw e;
+    throw new Error("Erro ao salvar o produto no servidor, erro " + e);
   }
 };
 
@@ -120,15 +114,11 @@ const saveProdutoAsyncStorage = async (produto: ICreateProduto) => {
   }
 };
 export async function putProduto(produto: ICreateProduto, id: string) {
-  try {
-    const estado = await getEstado();
-    if (estado == "online") {
-      return await putProdutoApi(produto, id);
-    } else {
-      return await putProdutoAyncStorage(produto, id);
-    }
-  } catch (e) {
-    throw e;
+  const estado = await getEstado();
+  if (estado == "online") {
+    return await putProdutoApi(produto, id);
+  } else {
+    return await putProdutoAyncStorage(produto, id);
   }
 }
 
@@ -143,7 +133,7 @@ const putProdutoApi = async (produto: ICreateProduto, id: string) => {
 
 const putProdutoAyncStorage = async (produto: ICreateProduto, id: string) => {
   try {
-    let dados = await ReadProdutoAsyncStorage();
+    const dados = await ReadProdutoAsyncStorage();
     if (dados) {
       const novoProduto = {
         ...produto,
@@ -163,15 +153,11 @@ const putProdutoAyncStorage = async (produto: ICreateProduto, id: string) => {
 };
 
 export async function deleteProduto(id: string) {
-  try {
-    const estado = await getEstado();
-    if (estado == "online") {
-      return await deleteProdutoApi(id);
-    } else {
-      return await deleteProdutoAyncStorage(id);
-    }
-  } catch (e) {
-    throw e;
+  const estado = await getEstado();
+  if (estado == "online") {
+    return await deleteProdutoApi(id);
+  } else {
+    return await deleteProdutoAyncStorage(id);
   }
 }
 
@@ -180,7 +166,7 @@ const deleteProdutoApi = async (id: string) => {
     const url = await baseUrl();
     await axios.delete(`${url}/${id}`);
   } catch (e) {
-    throw e;
+    throw new Error("Erro ao deletar o produto no servidor, erro" + e);
   }
 };
 
@@ -202,24 +188,41 @@ export async function SincronizarProdutoAyncStorageParaApi() {
 
   if (conectado) {
     const dados = await ReadProdutoAsyncStorage();
-    const savePromises = dados.map((produto) => saveProdutoApi(produto));
     try {
+      const savePromises = dados.map((produto) => saveProdutoApi(produto));
+
       await Promise.all(savePromises);
       await AsyncStorage.setItem("produtos", "");
-      return;
-    } catch (errors: any) {
-      const produtosNaoSalvos = [] as IReadProduto[];
-      errors.forEach((error: Error | undefined, index: number) => {
-        if (error) {
-          produtosNaoSalvos.push(dados[index]);
-        } else {
-          console.error("Erro desconhecido durante o salvamento do produto");
+    } catch (errors) {
+      const produtosNaoSalvos: IReadProduto[] = [];
+
+      if (Array.isArray(errors)) {
+        errors.forEach((error, index) => {
+          if (error) {
+            produtosNaoSalvos.push(dados[index]);
+          } else {
+            console.error(
+              "Erro desconhecido durante o salvamento do produto no índice:",
+              index
+            );
+          }
+        });
+        if (produtosNaoSalvos.length > 0) {
+          await AsyncStorage.setItem(
+            "produtos",
+            JSON.stringify(produtosNaoSalvos)
+          );
+          throw new Error(
+            "Erro ao Sincronizar os produtos. Alguns produtos não foram salvos no servidor e foram mantidos offline."
+          );
         }
-      });
-      await AsyncStorage.setItem("produtos", JSON.stringify(dados));
-      throw new Error(
-        `Erro ao Sincronizar os produtos, os produtos nao salvos se mantiveram no offline`
-      );
+      } else {
+        console.error(
+          "Erro desconhecido durante a leitura do AsyncStorage:",
+          errors
+        );
+        throw new Error("Erro ao ler dados do AsyncStorage");
+      }
     }
   }
 }
