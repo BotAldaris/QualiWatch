@@ -1,11 +1,11 @@
 import IReadProduto from "../interfaces/Produtos/ReadProduto";
-import axios from "axios";
 import { getUrl } from "./Url";
 import ICreateProduto from "../interfaces/Produtos/CreateProduto";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getEstado } from "./Estado";
 import NetInfo from "@react-native-community/netinfo";
 import IReadProdutoApi from "../interfaces/Produtos/ReadProdutoApi";
+const headers = {"Content-type": "application/json; charset=UTF-8"}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const dateTimeReviver = function (key: any, value: any) {
@@ -43,9 +43,12 @@ export async function ReadProduto(): Promise<IReadProduto[]> {
 const ReadProdutoApi = async () => {
   try {
     const url = await baseUrl();
-    const response = await axios.get(`${url}`);
-    return response.data as IReadProduto[];
+    const resp= await fetch(url)
+    const response = await resp.json()
+    return response as IReadProduto[];
   } catch (e) {
+    const errors = e as Error
+    console.log(errors.stack  )
     throw new Error(`Erro ao pegar os produtos no banco de dados ${e}`);
   }
 };
@@ -85,9 +88,10 @@ export async function saveProduto(produto: ICreateProduto) {
 const saveProdutoApi = async (produto: ICreateProduto) => {
   try {
     const url = await baseUrl();
-    await axios.post(`${url}`, produto);
+    await fetch(url,{method:"POST",body: JSON.stringify(produto),headers})
   } catch (e) {
-    throw new Error("Erro ao salvar o produto no servidor, erro " + e);
+    const errors = e as Error
+    throw new Error("Erro ao salvar o produto no servidor, erro " + errors.message);
   }
 };
 
@@ -125,9 +129,10 @@ export async function putProduto(produto: ICreateProduto, id: string) {
 const putProdutoApi = async (produto: ICreateProduto, id: string) => {
   try {
     const url = await baseUrl();
-    await axios.put(`${url}/${id}`, produto);
+    await fetch(`${url}/${id}`,{method:"PUT",body: JSON.stringify(produto), headers})
   } catch (e) {
-    throw new Error(`Erro ao editar o produto online, erro ${e}}`);
+    const err = e as Error
+    throw new Error(`Erro ao editar o produto online, erro ${err.message}}`);
   }
 };
 
@@ -164,9 +169,10 @@ export async function deleteProduto(id: string) {
 const deleteProdutoApi = async (id: string) => {
   try {
     const url = await baseUrl();
-    await axios.delete(`${url}/${id}`);
+    await fetch(`${url}/${id}`,{method:"DELETE"})
   } catch (e) {
-    throw new Error("Erro ao deletar o produto no servidor, erro" + e);
+    const errors = e as Error
+    throw new Error("Erro ao deletar o produto no servidor, erro" + errors.message);
   }
 };
 
@@ -232,8 +238,8 @@ export async function atualizarListaProdutosPertodeVencer() {
     const body = await criarBodyComValidade();
     const url = await baseUrl();
     const data = new Date().toISOString();
-    const resposta = await axios.post(`${url}/validade`, body);
-    const produtosSemDataFormatada = resposta.data as IReadProdutoApi[];
+    const resposta = await  fetch(`${url}/validade`,{method:"POST",body:JSON.stringify(body),headers})
+    const produtosSemDataFormatada = await resposta.json() as IReadProdutoApi[];
     const produtos = await getListaProdutosPertoDeVencerApi();
     const result = [...produtosSemDataFormatada, ...produtos];
     await AsyncStorage.setItem("validades", JSON.stringify(result));
@@ -254,7 +260,8 @@ export async function getListaProdutosPertoDeVencerApi(): Promise<
     }
     return [] as IReadProdutoApi[];
   } catch (error) {
-    throw new Error(`Erro ao Pegar os Alertas no Async Storage: ${error}`);
+    const errors = error as Error
+    throw new Error(`Erro ao Pegar os Alertas no Async Storage: ${errors.message}`);
   }
 }
 
