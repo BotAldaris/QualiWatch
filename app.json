@@ -20,7 +20,12 @@
         {
           "cameraPermission": "Permitir que o QualiWatch use a sua camera."
         }
-      ]
+      ],
+      ["expo-build-properties", {
+        "android": {
+          "usesCleartextTraffic": true
+        }
+      }]
     ],
     "ios": {
       "supportsTablet": true

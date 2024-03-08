@@ -47,8 +47,6 @@ const ReadProdutoApi = async () => {
     const response = await resp.json()
     return response as IReadProduto[];
   } catch (e) {
-    const errors = e as Error
-    console.log(errors.stack  )
     throw new Error(`Erro ao pegar os produtos no banco de dados ${e}`);
   }
 };
