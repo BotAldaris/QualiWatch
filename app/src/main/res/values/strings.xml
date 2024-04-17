@@ -36,4 +36,7 @@
     <string name="dark">Dark</string>
     <string name="online">Online</string>
     <string name="offline">Offline</string>
+    <string name="connection_error_title">Network error</string>
+    <string name="save_offline">We encountered an error saving your product online.  Would you like to save it locally or switch to offline mode?</string>
+    <string name="dismiss">Dismiss</string>
 </resources>

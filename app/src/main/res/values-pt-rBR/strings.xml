@@ -37,4 +37,6 @@
     <string name="dark">Escuro</string>
     <string name="online">Online</string>
     <string name="offline">Offline</string>
+    <string name="connection_error_title">Erro de conexão</string>
+    <string name="save_offline">Ocorreu um erro ao salvar seu produto online. Deseja salvá-lo localmente ou alternar para o modo offline?</string>
 </resources>

@@ -60,6 +60,7 @@ fun ProductScreen(navController: NavHostController = rememberNavController()) {
             val addEditProductViewModel = viewModel<AddEditProductViewModel>(
                 factory = AddEditProductViewModelFactory(
                     QualiwatchApplication.appContainer.productsRepository,
+                    QualiwatchApplication.appContainer.userPreferencesRepository,
                     { typeId -> navController.navigate("${ProductScreenEnum.Camerax.name}/$typeId") },
                     product
                 )

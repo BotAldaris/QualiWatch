@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.example.qualiwatch.R
 import com.example.qualiwatch.ui.screens.products.utils.InputWithOCR
 import com.example.qualiwatch.ui.screens.products.utils.MyDatePickerWithDialog
+import com.example.qualiwatch.ui.screens.products.utils.SaveOfflineDialog
 import com.example.qualiwatch.ui.screens.shared.SharedCameraxAddViewModel
 import java.time.LocalDateTime
 
@@ -73,6 +74,14 @@ fun AddEditProductScreen(
                     sharedCameraxAddViewModel::updateImageProxy
                 )
             }
+        }
+        if (uiState.showSaveOfflineDialog) {
+            SaveOfflineDialog(
+                onDismissRequest = { viewmodel.updateShowSaveOffline(false) },
+                onConfirmation = viewmodel::onConfimationSaveOffline
+            )
+
+
         }
         if (uiState.hasError) {
             val snackbarText = stringResource(R.string.saving_error)

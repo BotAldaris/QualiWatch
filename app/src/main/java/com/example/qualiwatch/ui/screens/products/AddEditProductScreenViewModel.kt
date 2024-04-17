@@ -1,9 +1,12 @@
 package com.example.qualiwatch.ui.screens.products
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.qualiwatch.QualiwatchApplication
 import com.example.qualiwatch.data.ProductsRepository
+import com.example.qualiwatch.data.UserPreferencesRepository
 import com.example.qualiwatch.model.ImageResponse
 import com.example.qualiwatch.model.Product
 import com.example.qualiwatch.model.ProductPost
@@ -24,6 +27,7 @@ data class AddEditProductScreenUiState(
     val imageResponseList: List<ImageResponse> = listOf(),
     val numInput: Int = 0,
     val showDialog: Boolean = false,
+    val showSaveOfflineDialog: Boolean = false,
     val hasError: Boolean = false,
     val hasSaved: Boolean = false,
     val hasErrorInName: Boolean = true,
@@ -32,7 +36,9 @@ data class AddEditProductScreenUiState(
 
 class AddEditProductViewModel(
     private val productsRepository: ProductsRepository,
+    private val userPreferencesRepository: UserPreferencesRepository,
     private val goToCamerax: (Int) -> Unit,
+    private val isOnline: () -> Boolean,
     product: Product?
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AddEditProductScreenUiState())
@@ -97,19 +103,40 @@ class AddEditProductViewModel(
         _uiState.update { it.copy(hasError = hasError) }
     }
 
+    fun updateShowSaveOffline(show: Boolean) {
+        _uiState.update { it.copy(showSaveOfflineDialog = show) }
+    }
+
     fun updateNumInput(num: Int) {
         _uiState.update { it.copy(numInput = num) }
     }
 
     fun saveProduct() {
-        if (uiState.value.hasErrorInBatch || uiState.value.hasErrorInName) {
-            updateHasError(true)
-        } else {
-            if (uiState.value.id == "") {
-                createNewProduct()
+        viewModelScope.launch {
+            val off = userPreferencesRepository.getSaveOnline()
+            val isO = isOnline()
+            Log.d("off", off.toString())
+            Log.d("off", isO.toString())
+            if (!isOnline() && off) {
+                updateShowSaveOffline(true)
+            } else if (uiState.value.hasErrorInBatch || uiState.value.hasErrorInName) {
+                updateHasError(true)
             } else {
-                updateProduct()
+                Log.d(" tem q", " oii")
+                if (uiState.value.id == "") {
+                    createNewProduct()
+                } else {
+                    updateProduct()
+                }
             }
+        }
+
+    }
+
+    fun onConfimationSaveOffline() {
+        viewModelScope.launch {
+            userPreferencesRepository.updateSaveOnline(false)
+            saveProduct()
         }
     }
 
@@ -198,6 +225,7 @@ class AddEditProductViewModel(
 @Suppress("UNCHECKED_CAST")
 class AddEditProductViewModelFactory(
     private val repository: ProductsRepository,
+    private val userPreferencesRepository: UserPreferencesRepository,
     private val goToCamerax: (Int) -> Unit,
     private val productString: String?
 ) :
@@ -210,7 +238,9 @@ class AddEditProductViewModelFactory(
             }
             return AddEditProductViewModel(
                 repository,
+                userPreferencesRepository,
                 goToCamerax,
+                QualiwatchApplication.appContainer::isNetworkAvailable,
                 product
             ) as T
         }

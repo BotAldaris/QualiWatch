@@ -1,6 +1,8 @@
 package com.example.qualiwatch.data
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
@@ -32,10 +34,13 @@ interface AppContainer {
         updateList: (List<ImageResponse>) -> Unit
     ): Unit
 
+    fun isNetworkAvailable(): Boolean
     val nearExpirationRepository: NearExpirationRepository
 }
 
 class DefaultAppContainer(context: Context) : AppContainer {
+    private val connectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     private val baseUrl = "http://cefsaweb/QualiwatchAppCozinha/"
     private val retrofit: Retrofit = Retrofit.Builder()
         .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
@@ -68,6 +73,21 @@ class DefaultAppContainer(context: Context) : AppContainer {
                 updateList(textToImageResponseList(visionText, num))
             }
         }
+    }
+
+    override fun isNetworkAvailable(): Boolean {
+        val capabilities =
+            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        if (capabilities != null) {
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                return true
+            }
+        }
+        return false
     }
 
     override val nearExpirationRepository: NearExpirationRepository =

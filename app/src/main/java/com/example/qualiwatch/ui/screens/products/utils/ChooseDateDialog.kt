@@ -61,7 +61,7 @@ fun ChooseDateDialog(
         },
         dismissButton = {
             TextButton(onClick = { onDismissRequest() }) {
-                Text("Dismiss")
+                Text(stringResource(id = R.string.dismiss))
             }
         })
 }
