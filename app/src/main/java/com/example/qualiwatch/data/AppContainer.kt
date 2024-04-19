@@ -31,7 +31,7 @@ interface AppContainer {
         imageProxy: ImageProxy,
         num: Int,
         updateList: (List<ImageResponse>) -> Unit
-    ): Unit
+    )
 
     fun isNetworkAvailable(): Boolean
     val nearExpirationRepository: NearExpirationRepository
@@ -40,7 +40,7 @@ interface AppContainer {
 class DefaultAppContainer(context: Context) : AppContainer {
     private val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    private val baseUrl = "http://10.0.2.2:5000/"
+    private val baseUrl = "http://cefsaweb/QualiwatchAppCozinha/"
     private val retrofit: Retrofit = Retrofit.Builder()
         .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
         .baseUrl(baseUrl)

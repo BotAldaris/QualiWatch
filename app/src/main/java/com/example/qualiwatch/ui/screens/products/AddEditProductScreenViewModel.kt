@@ -1,21 +1,19 @@
 package com.example.qualiwatch.ui.screens.products
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.qualiwatch.QualiwatchApplication
+import com.example.qualiwatch.R
 import com.example.qualiwatch.data.ProductsRepository
 import com.example.qualiwatch.data.UserPreferencesRepository
 import com.example.qualiwatch.model.ImageResponse
-import com.example.qualiwatch.model.Product
 import com.example.qualiwatch.model.ProductPost
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -28,7 +26,7 @@ data class AddEditProductScreenUiState(
     val numInput: Int = 0,
     val showDialog: Boolean = false,
     val showSaveOfflineDialog: Boolean = false,
-    val hasError: Boolean = false,
+    val userMessage: Int? = null,
     val hasSaved: Boolean = false,
     val hasErrorInName: Boolean = true,
     val hasErrorInBatch: Boolean = true,
@@ -38,25 +36,39 @@ class AddEditProductViewModel(
     private val productsRepository: ProductsRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
     private val goToCamerax: (Int) -> Unit,
+    private val onLoadingError: (Int) -> Unit,
     private val isOnline: () -> Boolean,
-    product: Product?
+    id: String?
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AddEditProductScreenUiState())
     val uiState: StateFlow<AddEditProductScreenUiState> = _uiState.asStateFlow()
 
     init {
-        if (product != null) {
-            _uiState.update {
-                it.copy(
-                    id = product.id,
-                    name = product.nome,
-                    batch = product.lote,
-                    expiration = product.validade,
-                    hasErrorInBatch = false,
-                    hasErrorInName = false
-                )
+        if (id != null) {
+            viewModelScope.launch {
+                try {
+                    val online = userPreferencesRepository.getSaveOnline()
+                    if (!isOnline() && online) {
+                        onLoadingError(R.string.error_no_internet)
+                    } else {
+                        val product = productsRepository.getProductById(id)
+                        _uiState.update {
+                            it.copy(
+                                id = product.id,
+                                name = product.nome,
+                                batch = product.lote,
+                                expiration = product.validade,
+                                hasErrorInBatch = false,
+                                hasErrorInName = false
+                            )
+                        }
+                    }
+                } catch (e: Exception) {
+                    onLoadingError(R.string.error_loading_product)
+                }
             }
         }
+
     }
 
     fun onConfirmation(result: String?, reset: (String?) -> Unit) {
@@ -99,8 +111,8 @@ class AddEditProductViewModel(
         }
     }
 
-    fun updateHasError(hasError: Boolean) {
-        _uiState.update { it.copy(hasError = hasError) }
+    fun updateMessage(message: Int?) {
+        _uiState.update { it.copy(userMessage = message) }
     }
 
     fun updateShowSaveOffline(show: Boolean) {
@@ -113,18 +125,16 @@ class AddEditProductViewModel(
 
     fun saveProduct() {
         viewModelScope.launch {
-            val off = userPreferencesRepository.getSaveOnline()
-            val isO = isOnline()
-            Log.d("off", off.toString())
-            Log.d("off", isO.toString())
-            if (!isOnline() && off) {
-                updateShowSaveOffline(true)
-            } else if (uiState.value.hasErrorInBatch || uiState.value.hasErrorInName) {
-                updateHasError(true)
+            if (uiState.value.hasErrorInBatch || uiState.value.hasErrorInName) {
+                updateMessage(R.string.saving_error)
             } else {
-                Log.d(" tem q", " oii")
                 if (uiState.value.id == "") {
-                    createNewProduct()
+                    val off = userPreferencesRepository.getSaveOnline()
+                    if (!isOnline() && off) {
+                        updateShowSaveOffline(true)
+                    } else {
+                        createNewProduct()
+                    }
                 } else {
                     updateProduct()
                 }
@@ -174,7 +184,7 @@ class AddEditProductViewModel(
             productsRepository.postProduct(createProductPost())
             _uiState.update { it.copy(hasSaved = true) }
         } catch (e: Exception) {
-            updateHasError(true)
+            updateMessage(R.string.saving_error)
         }
 
     }
@@ -184,7 +194,7 @@ class AddEditProductViewModel(
             productsRepository.putProducts(uiState.value.id, createProductPost())
             _uiState.update { it.copy(hasSaved = true) }
         } catch (e: Exception) {
-            updateHasError(true)
+            updateMessage(R.string.saving_error)
         }
     }
 
@@ -212,12 +222,12 @@ class AddEditProductViewModel(
                 ano = onlyNumber.substring(2, 6).toInt()
                 mes = onlyNumber.substring(0, 2).toInt()
             } else {
-                updateHasError(true)
+                updateMessage(R.string.error_convert_text_date)
             }
             val dateNew = LocalDateTime.of(ano, mes, dia, 0, 0)
             _uiState.update { it.copy(expiration = dateNew) }
         } catch (e: Exception) {
-            updateHasError(true)
+            updateMessage(R.string.error_convert_text_date)
         }
     }
 }
@@ -227,21 +237,20 @@ class AddEditProductViewModelFactory(
     private val repository: ProductsRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
     private val goToCamerax: (Int) -> Unit,
-    private val productString: String?
+    private val onLoadingError: (Int) -> Unit,
+    private val id: String?
 ) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(AddEditProductViewModel::class.java)) {
-            var product: Product? = null
-            if (productString != null) {
-                product = Json.decodeFromString<Product>(productString)
-            }
+
             return AddEditProductViewModel(
                 repository,
                 userPreferencesRepository,
                 goToCamerax,
+                onLoadingError,
                 QualiwatchApplication.appContainer::isNetworkAvailable,
-                product
+                id
             ) as T
         }
         throw IllegalArgumentException("ViewModel class not found.")

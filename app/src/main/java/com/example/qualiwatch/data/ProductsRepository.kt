@@ -11,6 +11,7 @@ interface ProductsRepository {
     suspend fun putProducts(id: String, product: ProductPost)
     suspend fun deleteProduct(product: Product)
     suspend fun syncProduct()
+    suspend fun getProductById(id: String): Product
 }
 
 class OnOffProductsRepository(
@@ -61,6 +62,13 @@ class OnOffProductsRepository(
             )
             offlineProductRepository.deleteProduct(product)
         }
+    }
+
+    override suspend fun getProductById(id: String): Product {
+        if (preferencesRepository.getSaveOnline()) {
+            return networkProductsRepository.getProductById(id)
+        }
+        return offlineProductRepository.getProductById(id)
     }
 
 }

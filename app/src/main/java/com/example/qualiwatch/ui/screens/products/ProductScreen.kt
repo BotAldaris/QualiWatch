@@ -32,37 +32,55 @@ fun ProductScreen(navController: NavHostController = rememberNavController()) {
     val context = LocalContext.current
 
     NavHost(navController = navController, startDestination = ProductScreenEnum.Home.name) {
-        composable(route = ProductScreenEnum.Home.name) {
+        composable(
+            route = "${ProductScreenEnum.Home.name}?message={message}",
+            arguments = listOf(navArgument("message") {
+                type = NavType.IntType
+                defaultValue = -1
+            })
+        ) {
+            val message = it.arguments?.getInt("message")
             val homeProductsViewModel =
                 viewModel<HomeProductsViewModel>(factory = HomeProductsViewModel.Factory)
             val homeProductsUiState by homeProductsViewModel.uiState.collectAsState()
+            if (message != null) {
+                if (message != -1) {
+                    homeProductsViewModel.updateMessage(message)
+                }
+            }
             HomeScreen(
                 homeProductsViewModel = homeProductsViewModel,
                 homeProductsUiState = homeProductsUiState,
                 retryAction = homeProductsViewModel::getProducts,
-                editProductAction = {
-                    navController.navigate("${ProductScreenEnum.AddEdit.name}?product=$it")
+                editProductAction = { id ->
+                    navController.navigate("${ProductScreenEnum.AddEdit.name}?id=$id")
                 },
                 deleteProductAction = homeProductsViewModel::deleteProduct,
-                updateHasError = homeProductsViewModel::updateError,
                 addProduct = { navController.navigate(ProductScreenEnum.AddEdit.name) },
             )
         }
         composable(
-            route = "${ProductScreenEnum.AddEdit.name}?product={product}",
-            arguments = listOf(navArgument("product") {
+            route = "${ProductScreenEnum.AddEdit.name}?id={id}",
+            arguments = listOf(navArgument("id") {
                 type = NavType.StringType
                 defaultValue = null
                 nullable = true
             })
         ) {
-            val product = it.arguments?.getString("product")
+            val id = it.arguments?.getString("id")
             val addEditProductViewModel = viewModel<AddEditProductViewModel>(
                 factory = AddEditProductViewModelFactory(
                     QualiwatchApplication.appContainer.productsRepository,
                     QualiwatchApplication.appContainer.userPreferencesRepository,
                     { typeId -> navController.navigate("${ProductScreenEnum.Camerax.name}/$typeId") },
-                    product
+                    { messageID ->
+                        navController.navigate("${ProductScreenEnum.Home.name}?message=$messageID") {
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
+                        }
+                    },
+                    id
                 )
             )
             AddEditProductScreen(
@@ -76,7 +94,7 @@ fun ProductScreen(navController: NavHostController = rememberNavController()) {
                     }
                 },
                 onBack = { navController.popBackStack() },
-                title = if (product == null) R.string.addProduct else R.string.editProduct
+                title = if (id == null) R.string.addProduct else R.string.editProduct
             )
         }
         composable(

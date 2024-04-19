@@ -19,5 +19,7 @@ class NetworkProductsRepository(private val productsApiService: ProductsApiServi
 
     suspend fun deleteProduct(product: Product) =
         productsApiService.deleteProducts(product.id)
+
+    suspend fun getProductById(id: String): Product = productsApiService.getProductById(id)
 }
 

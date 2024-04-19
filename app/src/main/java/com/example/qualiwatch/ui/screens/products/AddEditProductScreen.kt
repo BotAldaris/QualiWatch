@@ -83,11 +83,11 @@ fun AddEditProductScreen(
 
 
         }
-        if (uiState.hasError) {
-            val snackbarText = stringResource(R.string.saving_error)
+        if (uiState.userMessage != null) {
+            val snackbarText = stringResource(uiState.userMessage!!)
             LaunchedEffect(snackbarHostState, snackbarText, viewmodel) {
                 snackbarHostState.showSnackbar(snackbarText)
-                viewmodel.updateHasError(false)
+                viewmodel.updateMessage(null)
             }
         }
         LaunchedEffect(uiState.hasSaved) {

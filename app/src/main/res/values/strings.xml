@@ -25,11 +25,9 @@
     <string name="take_photo">Take photo</string>
     <string name="confirm">Confirm</string>
     <string name="alert">Alert</string>
-    <string name="deleteAll">Delete All</string>
     <string name="settings">Settings</string>
     <string name="search">Search</string>
     <string name="syncError">An error occurred during the synchronization of alerts.</string>
-    <string name="loading_alerts_error">Error while loading alerts</string>
     <string name="error_loading_settings">Error while loading the user preferences</string>
     <string name="theme">Theme</string>
     <string name="light">Light</string>
@@ -40,4 +38,8 @@
     <string name="save_offline">We encountered an error saving your product online.  Would you like to save it locally or switch to offline mode?</string>
     <string name="dismiss">Dismiss</string>
     <string name="date">Date</string>
+    <string name="error_convert_text_date">There was an error converting the text you chose to a date.</string>
+    <string name="error_loading_product">Error while loading the product</string>
+    <string name="error_no_internet">It appears you are not connected to the internet. An internet connection is required to load the product.</string>
+    <string name="syncErrorProduct">An error occurred during the synchronization of products.</string>
 </resources>

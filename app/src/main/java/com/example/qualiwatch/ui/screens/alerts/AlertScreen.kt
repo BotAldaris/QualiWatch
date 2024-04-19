@@ -31,37 +31,28 @@ import com.example.qualiwatch.ui.shared.LoadingScreen
 
 @Composable
 fun AlertScreen(
-    viewModel: AlertScreenViewModel
+    viewModel: AlertScreenViewModel,
+    modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.alertScreenUiState.collectAsState()
-    when (uiState.screen) {
-        0 -> LoadingScreen()
-        1 -> AlertPage(viewModel = viewModel, uiState = uiState)
-        2 -> ErrorScreen(retryAction = viewModel::getAlerts)
-    }
-}
-
-@Composable
-fun AlertPage(viewModel: AlertScreenViewModel, uiState: AlertScreenUiState) {
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }, topBar = {
         AlertScreenTopAppBar(
             syncProduct = viewModel::syncProduct
         )
     }) {
+        when (uiState.screen) {
+            0 -> LoadingScreen(
+                modifier = modifier
+                    .padding(it)
+                    .fillMaxWidth()
+            )
 
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(it)
-        ) {
-            Row(modifier = Modifier.fillMaxWidth(0.95f)) {
-                Text(stringResource(R.string.name), modifier = Modifier.weight(0.37f))
-                Text(stringResource(R.string.batch), modifier = Modifier.weight(0.3f))
-                Text(stringResource(R.string.date), modifier = Modifier.weight(0.33f))
-            }
-            HorizontalDivider()
-            AlertList(
-                products = uiState.products,
+            1 -> AlertPage(uiState = uiState, modifier = modifier.padding(it))
+            2 -> ErrorScreen(
+                retryAction = viewModel::getAlerts, modifier = modifier
+                    .padding(it)
+                    .fillMaxWidth()
             )
         }
         uiState.userMessage?.let { message ->
@@ -72,6 +63,30 @@ fun AlertPage(viewModel: AlertScreenViewModel, uiState: AlertScreenUiState) {
             }
         }
     }
+}
+
+@Composable
+fun AlertPage(
+    uiState: AlertScreenUiState,
+    modifier: Modifier = Modifier
+) {
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        Row(modifier = Modifier.fillMaxWidth(0.95f)) {
+            Text(stringResource(R.string.name), modifier = Modifier.weight(0.37f))
+            Text(stringResource(R.string.batch), modifier = Modifier.weight(0.3f))
+            Text(stringResource(R.string.date), modifier = Modifier.weight(0.33f))
+        }
+        HorizontalDivider()
+        AlertList(
+            products = uiState.products,
+        )
+    }
+
+
 }
 
 @Composable

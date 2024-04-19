@@ -39,8 +39,6 @@ import com.example.qualiwatch.model.Product
 import com.example.qualiwatch.ui.screens.products.utils.DateUtils
 import com.example.qualiwatch.ui.shared.ErrorScreen
 import com.example.qualiwatch.ui.shared.LoadingScreen
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -52,7 +50,6 @@ fun HomeScreen(
     homeProductsViewModel: HomeProductsViewModel,
     editProductAction: (String) -> Unit,
     deleteProductAction: (Product) -> Unit,
-    updateHasError: (Boolean) -> Unit,
     retryAction: () -> Unit,
     addProduct: () -> Unit,
     modifier: Modifier = Modifier,
@@ -108,11 +105,11 @@ fun HomeScreen(
                     .fillMaxWidth()
             )
         }
-        if (homeProductsUiState.hasError) {
-            val snackbarText = stringResource(R.string.delete_error)
-            LaunchedEffect(snackbarHostState, snackbarText, updateHasError) {
+        if (homeProductsUiState.userMessage != null) {
+            val snackbarText = stringResource(homeProductsUiState.userMessage)
+            LaunchedEffect(snackbarHostState, snackbarText, homeProductsViewModel) {
                 snackbarHostState.showSnackbar(snackbarText)
-                updateHasError(false)
+                homeProductsViewModel.updateMessage(null)
             }
         }
     }
@@ -167,7 +164,7 @@ private fun ProductCard(
                 )
             }
             Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                OutlinedIconButton(onClick = { editProductAction(Json.encodeToString(product)) }) {
+                OutlinedIconButton(onClick = { editProductAction(product.id) }) {
                     Icon(painterResource(R.drawable.edit), stringResource(R.string.edit))
                 }
                 FilledTonalIconButton(onClick = { deleteProductAction(product) }) {

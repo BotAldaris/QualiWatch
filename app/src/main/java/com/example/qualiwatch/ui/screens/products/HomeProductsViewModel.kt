@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.qualiwatch.QualiwatchApplication
+import com.example.qualiwatch.R
 import com.example.qualiwatch.data.ProductsRepository
 import com.example.qualiwatch.model.Product
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +24,7 @@ data class HomeProductsUiState(
     val hasError: Boolean = false,
     val query: String = "",
     val active: Boolean = false,
+    val userMessage: Int? = null,
 )
 
 
@@ -56,7 +58,7 @@ class HomeProductsViewModel(private val productsRepository: ProductsRepository) 
                 productsRepository.deleteProduct(product)
                 getProducts()
             } catch (_: Exception) {
-                updateError(true)
+                updateMessage(R.string.delete_error)
             }
         }
     }
@@ -66,7 +68,7 @@ class HomeProductsViewModel(private val productsRepository: ProductsRepository) 
             try {
                 productsRepository.syncProduct()
             } catch (_: Exception) {
-                updateError(true)
+                updateMessage(R.string.syncErrorProduct)
             }
         }
     }
@@ -98,11 +100,6 @@ class HomeProductsViewModel(private val productsRepository: ProductsRepository) 
         _uiState.update { it.copy(filteredProducts = products) }
     }
 
-    fun updateError(hasError: Boolean) {
-        _uiState.update {
-            it.copy(hasError = hasError)
-        }
-    }
 
     fun updateActive(active: Boolean) {
         _uiState.update { it.copy(active = active) }
@@ -111,6 +108,10 @@ class HomeProductsViewModel(private val productsRepository: ProductsRepository) 
     fun updateQuery(query: String) {
         _uiState.update { it.copy(query = query) }
         search(query)
+    }
+
+    fun updateMessage(message: Int?) {
+        _uiState.update { it.copy(userMessage = message) }
     }
 
     companion object {

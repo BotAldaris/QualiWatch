@@ -26,11 +26,9 @@
     <string name="take_photo">Tirar foto</string>
     <string name="confirm">Confirmar</string>
     <string name="alert">Alerta</string>
-    <string name="deleteAll">Apagar tudo</string>
     <string name="settings">Configuração</string>
     <string name="search">Procurar</string>
     <string name="syncError">Um erro ocorreu durante a sincronização dos alertas</string>
-    <string name="loading_alerts_error">Erro ao carregar os alertas</string>
     <string name="error_loading_settings">Erro ao carregar as preferências  do usuário</string>
     <string name="theme">Tema</string>
     <string name="light">Claro</string>
@@ -39,4 +37,10 @@
     <string name="offline">Offline</string>
     <string name="connection_error_title">Erro de conexão</string>
     <string name="save_offline">Ocorreu um erro ao salvar seu produto online. Deseja salvá-lo localmente ou alternar para o modo offline?</string>
+    <string name="dismiss">Fechar</string>
+    <string name="date">Data</string>
+    <string name="error_convert_text_date">"Ocorreu um erro ao converter o texto escolhido para uma data. "</string>
+    <string name="error_loading_product">Erro ao carregar os produtos</string>
+    <string name="error_no_internet">Parece que você não está conectado à internet. Uma conexão com a internet é necessária para carregar o produto.</string>
+    <string name="syncErrorProduct">Um erro ocorreu durante a sincronização dos produtos</string>
 </resources>

@@ -21,4 +21,5 @@ class OfflineProductDataSource(
     }
 
     suspend fun deleteProduct(product: Product) = productDao.delete(product.toLocal())
+    suspend fun getProductById(id: String): Product = productDao.getById(id).toExternal()
 }

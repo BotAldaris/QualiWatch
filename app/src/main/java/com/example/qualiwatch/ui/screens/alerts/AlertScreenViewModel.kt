@@ -37,6 +37,11 @@ class AlertScreenViewModel(private val nearExpirationRepository: NearExpirationR
             try {
                 val products = nearExpirationRepository.getProducts()
                 updateProducts(products)
+                updateScreen(1)
+            } catch (e: IOException) {
+                updateMessage(R.string.syncError)
+            } catch (e: HttpException) {
+                updateMessage(R.string.syncError)
             } catch (e: Exception) {
                 updateMessage(R.string.syncError)
             }
