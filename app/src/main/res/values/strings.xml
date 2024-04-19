@@ -39,4 +39,5 @@
     <string name="connection_error_title">Network error</string>
     <string name="save_offline">We encountered an error saving your product online.  Would you like to save it locally or switch to offline mode?</string>
     <string name="dismiss">Dismiss</string>
+    <string name="date">Date</string>
 </resources>

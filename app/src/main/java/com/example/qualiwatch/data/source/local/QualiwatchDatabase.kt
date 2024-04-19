@@ -8,14 +8,13 @@ import androidx.room.TypeConverters
 
 
 @Database(
-    entities = [LocalProduct::class, NearProduct::class, UserPreferences::class],
+    entities = [LocalProduct::class, UserPreferences::class],
     version = 1,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
 abstract class QualiwatchDatabase : RoomDatabase() {
     abstract fun productDao(): ProductDao
-    abstract fun expirationDao(): ExpirationDao
     abstract fun userPreferencesDao(): UserPreferencesDao
 
     companion object {

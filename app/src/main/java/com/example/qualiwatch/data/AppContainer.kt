@@ -6,7 +6,6 @@ import android.net.NetworkCapabilities
 import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
-import com.example.qualiwatch.data.source.local.NearExpirationDataSource
 import com.example.qualiwatch.data.source.local.OfflineProductDataSource
 import com.example.qualiwatch.data.source.local.QualiwatchDatabase
 import com.example.qualiwatch.data.source.network.NetworkProductsRepository
@@ -41,7 +40,7 @@ interface AppContainer {
 class DefaultAppContainer(context: Context) : AppContainer {
     private val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    private val baseUrl = "http://cefsaweb/QualiwatchAppCozinha/"
+    private val baseUrl = "http://10.0.2.2:5000/"
     private val retrofit: Retrofit = Retrofit.Builder()
         .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
         .baseUrl(baseUrl)
@@ -53,8 +52,6 @@ class DefaultAppContainer(context: Context) : AppContainer {
     private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     private val net = NetworkProductsRepository(retrofitService)
     private val off = OfflineProductDataSource(QualiwatchDatabase.getDatabase(context).productDao())
-    private val nearExpirationDataSource =
-        NearExpirationDataSource(QualiwatchDatabase.getDatabase(context).expirationDao())
     override val dateMatcher: Matcher = pat.matcher("")
     override val userPreferencesRepository: UserPreferencesRepository =
         UserPreferencesRepository(QualiwatchDatabase.getDatabase(context).userPreferencesDao())
@@ -91,7 +88,7 @@ class DefaultAppContainer(context: Context) : AppContainer {
     }
 
     override val nearExpirationRepository: NearExpirationRepository =
-        NearExpirationRepository(nearExpirationDataSource, net, userPreferencesRepository)
+        NearExpirationRepository(net)
 
 
     override var online: Boolean = false

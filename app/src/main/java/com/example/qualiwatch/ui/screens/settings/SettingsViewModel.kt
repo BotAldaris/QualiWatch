@@ -27,6 +27,7 @@ data class SettingsUiState(
 )
 
 class SettingsViewModel(private val repository: UserPreferencesRepository) : ViewModel() {
+
     private val _userMessage: MutableStateFlow<Int?> = MutableStateFlow(null)
     private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _userPreferencesAsync =

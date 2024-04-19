@@ -26,10 +26,9 @@ class MainActivity : ComponentActivity() {
             ActivityCompat.requestPermissions(this, CAMERAX_PERMISSIONS, 0)
         }
         lifecycleScope.launch {
-            try {
-                QualiwatchApplication.appContainer.nearExpirationRepository.syncProduct()
-            } catch (_: Exception) {
-
+            val repository = QualiwatchApplication.appContainer.userPreferencesRepository
+            if (!repository.isExists()) {
+                repository.addInitialUserPreferences()
             }
         }
         setContent {

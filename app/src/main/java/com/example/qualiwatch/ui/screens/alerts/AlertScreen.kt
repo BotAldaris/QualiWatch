@@ -1,6 +1,5 @@
 package com.example.qualiwatch.ui.screens.alerts
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,9 +15,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -26,50 +22,46 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.example.qualiwatch.R
 import com.example.qualiwatch.model.Product
+import com.example.qualiwatch.ui.shared.ErrorScreen
+import com.example.qualiwatch.ui.shared.LoadingScreen
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlertScreen(
     viewModel: AlertScreenViewModel
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
     val uiState by viewModel.alertScreenUiState.collectAsState()
-    val pullRefreshState =
-        rememberPullToRefreshState(PullToRefreshDefaults.PositionalThreshold)
+    when (uiState.screen) {
+        0 -> LoadingScreen()
+        1 -> AlertPage(viewModel = viewModel, uiState = uiState)
+        2 -> ErrorScreen(retryAction = viewModel::getAlerts)
+    }
+}
+
+@Composable
+fun AlertPage(viewModel: AlertScreenViewModel, uiState: AlertScreenUiState) {
+    val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }, topBar = {
         AlertScreenTopAppBar(
-            deleteAllProducts = viewModel::deleteAll,
             syncProduct = viewModel::syncProduct
         )
     }) {
-        Box(
-            Modifier
-                .padding(it)
-                .nestedScroll(pullRefreshState.nestedScrollConnection)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Row(modifier = Modifier.fillMaxWidth(0.95f)) {
-                    Text(stringResource(R.string.name), modifier = Modifier.weight(0.4f))
-                    Text(stringResource(R.string.batch), modifier = Modifier.weight(0.4f))
-                    Text(stringResource(R.string.delete), modifier = Modifier.weight(0.2f))
-                }
-                HorizontalDivider()
-                AlertList(
-                    products = uiState.products,
-                    deleteProduct = viewModel::deleteProduct
-                )
 
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(it)
+        ) {
+            Row(modifier = Modifier.fillMaxWidth(0.95f)) {
+                Text(stringResource(R.string.name), modifier = Modifier.weight(0.37f))
+                Text(stringResource(R.string.batch), modifier = Modifier.weight(0.3f))
+                Text(stringResource(R.string.date), modifier = Modifier.weight(0.33f))
             }
-            PullToRefreshContainer(
-                state = pullRefreshState,
-                modifier = Modifier.align(Alignment.TopCenter)
+            HorizontalDivider()
+            AlertList(
+                products = uiState.products,
             )
         }
         uiState.userMessage?.let { message ->
@@ -85,32 +77,26 @@ fun AlertScreen(
 @Composable
 fun AlertList(
     products: List<Product>,
-    deleteProduct: (Product) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         items(products, { item -> item.id }) {
-            AlertCard(product = it, deleteProduct = deleteProduct, modifier.fillMaxWidth(0.95f))
+            AlertCard(product = it, modifier.fillMaxWidth(0.95f))
             HorizontalDivider()
         }
     }
 }
 
 @Composable
-fun AlertCard(product: Product, deleteProduct: (Product) -> Unit, modifier: Modifier = Modifier) {
+fun AlertCard(product: Product, modifier: Modifier = Modifier) {
     Column(modifier) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(product.nome, modifier = Modifier.weight(0.4f))
-            Text(product.lote, modifier = Modifier.weight(0.4f))
-            Row(modifier = Modifier.weight(0.2f)) {
-                IconButton(onClick = { deleteProduct(product) }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.delete),
-                        contentDescription = stringResource(R.string.delete)
-                    )
-                }
-            }
-
+            Text(product.nome, modifier = Modifier.weight(0.37f))
+            Text(product.lote, modifier = Modifier.weight(0.3f))
+            Text(
+                product.validade.toString().split("T")[0].split("-").reversed().joinToString("/"),
+                modifier = Modifier.weight(0.33f)
+            )
         }
 
     }
@@ -119,7 +105,6 @@ fun AlertCard(product: Product, deleteProduct: (Product) -> Unit, modifier: Modi
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AlertScreenTopAppBar(
-    deleteAllProducts: () -> Unit,
     syncProduct: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -130,11 +115,6 @@ private fun AlertScreenTopAppBar(
                 onClick = syncProduct
             ) {
                 Icon(painterResource(R.drawable.sync), stringResource(R.string.sync))
-            }
-            IconButton(
-                onClick = deleteAllProducts
-            ) {
-                Icon(painterResource(R.drawable.delete_empty), stringResource(R.string.deleteAll))
             }
         },
         modifier = modifier.fillMaxWidth()

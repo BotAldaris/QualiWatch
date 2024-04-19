@@ -9,89 +9,69 @@ import com.example.qualiwatch.QualiwatchApplication
 import com.example.qualiwatch.R
 import com.example.qualiwatch.data.NearExpirationRepository
 import com.example.qualiwatch.model.Product
-import com.example.qualiwatch.util.Async
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
+import retrofit2.HttpException
+import java.io.IOException
 
 data class AlertScreenUiState(
-    val products: List<Product> = listOf(Product("1", "b", "c", LocalDateTime.now())),
+    val products: List<Product> = listOf(),
     val userMessage: Int? = null,
-    val isLoading: Boolean = false
+    val screen: Int = 0
 )
 
 class AlertScreenViewModel(private val nearExpirationRepository: NearExpirationRepository) :
     ViewModel() {
-    private val _userMessage: MutableStateFlow<Int?> = MutableStateFlow(null)
-    private val _alertsAsync =
-        nearExpirationRepository.getProductsFlow().map { Async.Success(it) }
-            .catch<Async<List<Product>>> { emit(Async.Error(R.string.loading_alerts_error)) }
-    private val _isLoading = MutableStateFlow(false)
+    private val _uiState = MutableStateFlow(AlertScreenUiState())
+    val alertScreenUiState: StateFlow<AlertScreenUiState> = _uiState.asStateFlow()
 
-    //    val alertScreenUiState: StateFlow<AlertScreenUiState> =
-//        nearExpirationRepository.getProductsFlow().map { AlertScreenUiState(it) }
-//            .stateIn(
-//                scope = viewModelScope,
-//                started = SharingStarted.WhileSubscribed(
-//                    TIMEOUT_MILLIS
-//                ), initialValue = AlertScreenUiState()
-//            )
-    val alertScreenUiState: StateFlow<AlertScreenUiState> =
-        combine(_isLoading, _userMessage, _alertsAsync) { isLoading, userMessage, alertAsync ->
-            when (alertAsync) {
-                Async.Loading -> {
-                    AlertScreenUiState(isLoading = true)
-                }
-
-                is Async.Error -> {
-                    AlertScreenUiState(userMessage = alertAsync.errorMessage)
-                }
-
-                is Async.Success -> {
-                    AlertScreenUiState(
-                        products = alertAsync.data,
-                        isLoading = isLoading,
-                        userMessage = userMessage
-                    )
-                }
-            }
-
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-            initialValue = AlertScreenUiState(isLoading = true)
-        )
+    init {
+        getAlerts()
+    }
 
     fun syncProduct() {
         viewModelScope.launch {
             try {
-                nearExpirationRepository.syncProduct()
+                val products = nearExpirationRepository.getProducts()
+                updateProducts(products)
             } catch (e: Exception) {
-                _userMessage.value = R.string.syncError
+                updateMessage(R.string.syncError)
             }
         }
     }
 
-    fun deleteProduct(product: Product) {
+    fun getAlerts() {
         viewModelScope.launch {
-            nearExpirationRepository.deleteProduct(product)
-        }
-    }
-
-    fun deleteAll() {
-        viewModelScope.launch {
-            nearExpirationRepository.deleteAll()
+            updateScreen(0)
+            try {
+                val products = nearExpirationRepository.getProducts()
+                updateProducts(products)
+                updateScreen(1)
+            } catch (e: IOException) {
+                updateScreen(2)
+            } catch (e: HttpException) {
+                updateScreen(2)
+            }
         }
     }
 
     fun snackbarMessageShown() {
-        _userMessage.value = null
+        updateMessage(null)
+    }
+
+    private fun updateScreen(i: Int) {
+        _uiState.update { it.copy(screen = i) }
+    }
+
+    private fun updateMessage(message: Int?) {
+        _uiState.update { it.copy(userMessage = message) }
+    }
+
+    private fun updateProducts(products: List<Product>) {
+        _uiState.update { it.copy(products = products) }
     }
 
     companion object {
