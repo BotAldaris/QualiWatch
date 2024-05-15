@@ -1,5 +1,6 @@
 package com.example.qualiwatch.ui.screens.products
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -14,7 +15,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 import java.io.IOException
 
 data class HomeProductsUiState(
@@ -46,7 +46,8 @@ class HomeProductsViewModel(private val productsRepository: ProductsRepository) 
                 updateScreen(1)
             } catch (e: IOException) {
                 updateScreen(2)
-            } catch (e: HttpException) {
+            } catch (e: Exception) {
+                Log.d("erro", "getProducts: $e")
                 updateScreen(2)
             }
         }
@@ -67,6 +68,7 @@ class HomeProductsViewModel(private val productsRepository: ProductsRepository) 
         viewModelScope.launch {
             try {
                 productsRepository.syncProduct()
+                getProducts()
             } catch (_: Exception) {
                 updateMessage(R.string.syncErrorProduct)
             }

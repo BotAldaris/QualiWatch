@@ -1,5 +1,6 @@
 package com.example.qualiwatch.ui.screens.products
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -194,6 +195,7 @@ class AddEditProductViewModel(
             productsRepository.putProducts(uiState.value.id, createProductPost())
             _uiState.update { it.copy(hasSaved = true) }
         } catch (e: Exception) {
+            Log.d("erro", "updateProduct: $e")
             updateMessage(R.string.saving_error)
         }
     }

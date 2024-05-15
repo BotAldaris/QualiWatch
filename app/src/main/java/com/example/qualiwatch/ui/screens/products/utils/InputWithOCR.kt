@@ -26,6 +26,7 @@ fun InputWithOCR(
     hasError: Boolean,
     errorMessage: String,
     showCamera: (Int) -> Unit,
+    imeAction: ImeAction,
     modifier: Modifier = Modifier
 ) {
     Column(modifier) {
@@ -35,7 +36,7 @@ fun InputWithOCR(
                 value = value,
                 onValueChange = onValueChange,
                 placeholder = { Text(text = stringResource(name)) },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardOptions = KeyboardOptions(imeAction = imeAction),
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .semantics { if (hasError) error(errorMessage) },

@@ -10,15 +10,14 @@ import com.example.qualiwatch.data.source.local.OfflineProductDataSource
 import com.example.qualiwatch.data.source.local.QualiwatchDatabase
 import com.example.qualiwatch.data.source.network.NetworkProductsRepository
 import com.example.qualiwatch.model.ImageResponse
-import com.example.qualiwatch.network.ProductsApiService
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import kotlinx.serialization.json.Json
-import okhttp3.MediaType.Companion.toMediaType
-import retrofit2.Retrofit
-import retrofit2.converter.kotlinx.serialization.asConverterFactory
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.kotlinx.json.json
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -40,17 +39,15 @@ interface AppContainer {
 class DefaultAppContainer(context: Context) : AppContainer {
     private val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    private val baseUrl = "http://cefsaweb/QualiwatchAppCozinha/"
-    private val retrofit: Retrofit = Retrofit.Builder()
-        .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
-        .baseUrl(baseUrl)
-        .build()
-    private val retrofitService: ProductsApiService by lazy {
-        retrofit.create(ProductsApiService::class.java)
+    private val baseUrl = "http://10.0.2.2:5000"
+    private val client = HttpClient(CIO){
+        install(ContentNegotiation){
+            json()
+        }
     }
     private val pat: Pattern = Pattern.compile("\\d{1,2}[-./\\s]?\\d{1,2}[-./\\s]?\\d{2,4}")
     private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-    private val net = NetworkProductsRepository(retrofitService)
+    private val net = NetworkProductsRepository(client,baseUrl)
     private val off = OfflineProductDataSource(QualiwatchDatabase.getDatabase(context).productDao())
     override val dateMatcher: Matcher = pat.matcher("")
     override val userPreferencesRepository: UserPreferencesRepository =

@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.example.qualiwatch.R
 import com.example.qualiwatch.ui.screens.products.utils.InputWithOCR
@@ -121,6 +122,7 @@ private fun AddEditProductContent(
             hasError = isErrorName,
             errorMessage = nullErrorMessage,
             showCamera = { showCamera(1) },
+            imeAction = ImeAction.Next,
             modifier = Modifier.padding(top = 20.dp)
         )
         InputWithOCR(
@@ -130,6 +132,7 @@ private fun AddEditProductContent(
             hasError = isErrorBatch,
             errorMessage = nullErrorMessage,
             showCamera = { showCamera(2) },
+            imeAction = ImeAction.Done,
             modifier = Modifier.padding(top = 20.dp)
         )
         Column(Modifier.padding(top = 20.dp)) {

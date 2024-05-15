@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 import java.io.IOException
 
 data class AlertScreenUiState(
@@ -40,8 +39,6 @@ class AlertScreenViewModel(private val nearExpirationRepository: NearExpirationR
                 updateScreen(1)
             } catch (e: IOException) {
                 updateMessage(R.string.syncError)
-            } catch (e: HttpException) {
-                updateMessage(R.string.syncError)
             } catch (e: Exception) {
                 updateMessage(R.string.syncError)
             }
@@ -57,7 +54,7 @@ class AlertScreenViewModel(private val nearExpirationRepository: NearExpirationR
                 updateScreen(1)
             } catch (e: IOException) {
                 updateScreen(2)
-            } catch (e: HttpException) {
+            } catch (e: Exception) {
                 updateScreen(2)
             }
         }
